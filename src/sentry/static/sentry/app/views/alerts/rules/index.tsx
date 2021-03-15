@@ -180,6 +180,7 @@ class AlertRulesList extends AsyncComponent<Props, State & AsyncComponent['state
         <Layout.Main fullWidth>
           <Feature features={['organizations:team-alerts-ownership']}>
             {({hasFeature}) => (
+<<<<<<< Updated upstream
               <React.Fragment>
                 {hasFeature && this.renderFilterBar()}
                 <StyledPanelTable
@@ -232,6 +233,56 @@ class AlertRulesList extends AsyncComponent<Props, State & AsyncComponent['state
                   </Projects>
                 </StyledPanelTable>
               </React.Fragment>
+=======
+              <StyledPanelTable
+                headers={[
+                  t('Type'),
+                  t('Alert Name'),
+                  t('Project'),
+                  ...(hasFeature ? [t('Team')] : []),
+                  t('Created By'),
+                  // eslint-disable-next-line react/jsx-key
+                  <StyledSortLink
+                    to={{
+                      pathname: `/organizations/${orgId}/alerts/rules/`,
+                      query: {
+                        ...query,
+                        asc: sort.asc ? undefined : '1',
+                      },
+                    }}
+                  >
+                    {t('Created')}{' '}
+                    <IconArrow
+                      color="gray300"
+                      size="xs"
+                      direction={sort.asc ? 'up' : 'down'}
+                    />
+                  </StyledSortLink>,
+                  t('Actions'),
+                ]}
+                isLoading={loading}
+                isEmpty={ruleList?.length === 0}
+                emptyMessage={this.tryRenderEmpty()}
+                showTeamCol={hasFeature}
+              >
+                <Projects orgId={orgId} slugs={Array.from(allProjectsFromIncidents)}>
+                  {({initiallyLoaded, projects}) =>
+                    ruleList.map(rule => (
+                      <RuleListRow
+                        // Metric and issue alerts can have the same id
+                        key={`${isIssueAlert(rule) ? 'metric' : 'issue'}-${rule.id}`}
+                        projectsLoaded={initiallyLoaded}
+                        projects={projects as Project[]}
+                        rule={rule}
+                        orgId={orgId}
+                        onDelete={this.handleDeleteRule}
+                        organization={organization}
+                      />
+                    ))
+                  }
+                </Projects>
+              </StyledPanelTable>
+>>>>>>> Stashed changes
             )}
           </Feature>
           <Pagination pageLinks={ruleListPageLinks} />
@@ -296,6 +347,7 @@ const StyledSortLink = styled(Link)`
   }
 `;
 
+<<<<<<< Updated upstream
 const TeamName = styled('div')`
   font-size: ${p => p.theme.fontSizeMedium};
   ${overflowEllipsis};
@@ -335,6 +387,8 @@ const ListItem = styled('li')<{isChecked?: boolean}>`
   }
 `;
 
+=======
+>>>>>>> Stashed changes
 const StyledPanelTable = styled(PanelTable)<{showTeamCol: boolean}>`
   ${PanelTableHeader} {
     line-height: normal;

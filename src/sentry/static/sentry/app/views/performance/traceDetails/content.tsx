@@ -15,7 +15,10 @@ import {decodeScalar} from 'app/utils/queryString';
 import Breadcrumb from 'app/views/performance/breadcrumb';
 import {MetaData} from 'app/views/performance/transactionDetails/styles';
 
+<<<<<<< Updated upstream
 import TraceView from './traceView';
+=======
+>>>>>>> Stashed changes
 import {getTraceInfo} from './utils';
 
 type Props = {
@@ -38,7 +41,13 @@ class TraceDetailsContent extends React.Component<Props> {
     return <LoadingError message={t('The trace you are looking for was not found.')} />;
   }
 
+<<<<<<< Updated upstream
   renderTraceHeader(traceInfo) {
+=======
+  renderTrace(trace) {
+    const traceInfo = getTraceInfo(trace);
+
+>>>>>>> Stashed changes
     return (
       <TraceDetailHeader>
         <MetaData
@@ -59,6 +68,7 @@ class TraceDetailsContent extends React.Component<Props> {
     );
   }
 
+<<<<<<< Updated upstream
   renderTraceView(trace, traceInfo) {
     return (
       <TraceDetailBody>
@@ -67,6 +77,8 @@ class TraceDetailsContent extends React.Component<Props> {
     );
   }
 
+=======
+>>>>>>> Stashed changes
   renderContent() {
     const {location, organization, traceSlug} = this.props;
     const {query} = location;
@@ -93,6 +105,7 @@ class TraceDetailsContent extends React.Component<Props> {
           } else if (error !== null || trace === null) {
             return this.renderTraceNotFound();
           } else {
+<<<<<<< Updated upstream
             const traceInfo = getTraceInfo(trace);
 
             return (
@@ -101,6 +114,9 @@ class TraceDetailsContent extends React.Component<Props> {
                 {this.renderTraceView(trace, traceInfo)}
               </React.Fragment>
             );
+=======
+            return this.renderTrace(trace);
+>>>>>>> Stashed changes
           }
         }}
       </TraceFullQuery>
@@ -146,8 +162,11 @@ const TraceDetailHeader = styled('div')`
   }
 `;
 
+<<<<<<< Updated upstream
 const TraceDetailBody = styled('div')`
   margin-top: ${space(3)};
 `;
 
+=======
+>>>>>>> Stashed changes
 export default TraceDetailsContent;

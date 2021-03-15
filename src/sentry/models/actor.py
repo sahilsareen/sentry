@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 from collections import defaultdict, namedtuple
 
 from django.db import models
@@ -7,10 +8,16 @@ from rest_framework import serializers
 from sentry.db.models import Model
 from sentry.utils.compat import filter
 
+=======
+from django.db import models
+from sentry.db.models import Model
+from django.db.models.signals import pre_save
+>>>>>>> Stashed changes
 
 ACTOR_TYPES = {"team": 0, "user": 1}
 
 
+<<<<<<< Updated upstream
 def actor_type_to_class(type):
     # type will be 0 or 1 and we want to get Team or User
     from sentry.models import Team, User
@@ -28,6 +35,8 @@ def actor_type_to_string(type):
     return None
 
 
+=======
+>>>>>>> Stashed changes
 class Actor(Model):
     __core__ = True
 
@@ -42,6 +51,7 @@ class Actor(Model):
         app_label = "sentry"
         db_table = "sentry_actor"
 
+<<<<<<< Updated upstream
     def resolve(self):
         # Returns User/Team model object
         return actor_type_to_class(self.type).objects.get(actor_id=self.id)
@@ -146,6 +156,8 @@ class ActorTuple(namedtuple("Actor", "id type")):
 
         return {key: resolved_actors[value.type][value.id] for key, value in actor_dict.items()}
 
+=======
+>>>>>>> Stashed changes
 
 def handle_actor_pre_save(instance, **kwargs):
     # we want to create an actor if we don't have one

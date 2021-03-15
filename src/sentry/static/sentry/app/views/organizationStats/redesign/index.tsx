@@ -2,28 +2,31 @@ import React from 'react';
 import {RouteComponentProps} from 'react-router';
 import styled from '@emotion/styled';
 import capitalize from 'lodash/capitalize';
+import moment from 'moment';
 
 import {Client} from 'app/api';
 import Button from 'app/components/button';
 import ButtonBar from 'app/components/buttonBar';
 import Card from 'app/components/card';
+import {HeaderTitle} from 'app/components/charts/styles';
 import LoadingIndicator from 'app/components/loadingIndicator';
 import PageHeading from 'app/components/pageHeading';
 import {Panel, PanelBody} from 'app/components/panels';
+import QuestionTooltip from 'app/components/questionTooltip';
 import {t, tct} from 'app/locale';
 import {PageContent, PageHeader} from 'app/styles/organization';
+import overflowEllipsis from 'app/styles/overflowEllipsis';
 import space from 'app/styles/space';
 import {Organization} from 'app/types';
 
-import {OrganizationUsageStats, ProjectUsageStats} from './types';
+import Chart from './chart';
+import {formatUsageWithUnits} from './fromGetsentry';
+import {DataCategory, OrganizationUsageStats, ProjectUsageStats} from './types';
+import withOrgStats from './withOrgStats';
 
 type Props = {
   api: Client;
   organization: Organization;
-} & RouteComponentProps<{orgId: string}, {}>;
-
-type State = {
-  dataCategory: DataCategory;
 
   orgStats?: OrganizationUsageStats;
   orgStatsLoading: boolean;
@@ -32,93 +35,172 @@ type State = {
   projectStats?: ProjectUsageStats[];
   projectStatsLoading: boolean;
   projectStatsError?: Error;
+} & RouteComponentProps<{orgId: string}, {}>;
+
+type State = {
+  dataCategory: DataCategory;
 };
 
 // TODO: Move over from getsentry
-export enum DataCategory {
-  ERRORS = 'errors',
-  TRANSACTIONS = 'transactions',
-  ATTACHMENTS = 'attachments',
-}
 
 class OrganizationStats extends React.Component<Props, State> {
   state: State = {
     dataCategory: DataCategory.ERRORS,
-    orgStatsLoading: false,
-    projectStatsLoading: false,
   };
-
-  componentDidMount() {
-    this.getOrganizationStats();
-    this.getProjectsStats();
-  }
 
   setSelectedDataCategory = (dataCategory: DataCategory) => {
     this.setState({dataCategory});
   };
+
   get selectedDataCategory() {
     return capitalize(this.state.dataCategory);
   }
 
-  /**
-   * Fetches aggregated stats of tne entire organization
-   */
-  getOrganizationStats() {
-    this.setState({orgStatsLoading: true});
+  get formattedOrgStats(): {
+    stats: any[];
+    total: string;
+    accepted: string;
+    dropped: string;
+    filtered: string;
+    overQuota: string;
+  } {
+    const {orgStats} = this.props;
+    const {dataCategory} = this.state;
 
-    const orgStats: OrganizationUsageStats = {
-      statsErrors: [],
-      statsTransactions: [],
-      statsAttachments: [],
-    };
-
-    for (let i = 0; i < 31; i++) {
-      const stats = {
-        ts: i.toString(),
-        accepted: {timesSeen: i * 100, quantity: i * 1000},
-        filtered: {timesSeen: i * 100, quantity: i * 1000},
-        dropped: {
-          overQuota: {timesSeen: i * 100, quantity: i * 1000},
-          spikeProtection: {timesSeen: i * 100, quantity: i * 1000},
-          other: {timesSeen: i * 100, quantity: i * 1000},
-        },
+    if (!orgStats) {
+      return {
+        stats: [],
+        total: '—',
+        accepted: '—',
+        dropped: '—',
+        filtered: '—',
+        overQuota: '—',
       };
-
-      orgStats.statsErrors.push(stats);
-      orgStats.statsTransactions.push(stats);
-      orgStats.statsAttachments.push(stats);
     }
 
-    setTimeout(() => {
-      this.setState({
-        orgStatsLoading: false,
-        orgStats,
-      });
-    }, 3000);
-  }
+    const rawStats =
+      dataCategory === DataCategory.ERRORS
+        ? orgStats?.statsErrors
+        : dataCategory === DataCategory.TRANSACTIONS
+        ? orgStats?.statsTransactions
+        : orgStats?.statsAttachments;
 
-  /**
-   * Fetches stats of projects that the user has access to
-   */
-  getProjectsStats() {
-    return [];
+    // TODO(leedongwei): Handle quantity for Attachments
+    const stats = rawStats.reduce(
+      (acc, m) => {
+        // Calculate tallies for the specified interval
+        let dropped = 0;
+        if (m.dropped) {
+          Object.keys(m.dropped).forEach(k => {
+            dropped += m.dropped[k].times_seen;
+          });
+        }
+
+        const total = m.accepted.times_seen + m.filtered.times_seen + dropped;
+
+        // Calculate tallies for the entire time period
+        acc.total += total;
+        acc.accepted += m.accepted.times_seen;
+        acc.dropped += dropped;
+        acc.filtered += m.filtered.times_seen;
+        acc.overQuota += m.dropped.overQuota?.times_seen || 0;
+
+        acc.stats.push({
+          date: moment.unix((m as any).time).format('MMM D'),
+          total,
+          accepted: m.accepted.times_seen,
+          dropped,
+          filtered: m.filtered.times_seen,
+          rateLimited: m.dropped.overQuota?.times_seen || 0,
+        });
+
+        return acc;
+      },
+      {
+        stats: [] as any[], // TODO/(ts)
+        total: 0,
+        accepted: 0,
+        dropped: 0,
+        filtered: 0,
+        overQuota: 0,
+      }
+    );
+
+    const formatOptions = {
+      isAbbreviated: dataCategory !== DataCategory.ATTACHMENTS,
+      useUnitScaling: dataCategory === DataCategory.ATTACHMENTS,
+    };
+
+    return {
+      ...stats,
+      total: formatUsageWithUnits(stats.total, dataCategory, formatOptions),
+      accepted: formatUsageWithUnits(stats.accepted, dataCategory, formatOptions),
+      dropped: formatUsageWithUnits(stats.dropped, dataCategory, formatOptions),
+      filtered: formatUsageWithUnits(stats.filtered, dataCategory, formatOptions),
+      overQuota: formatUsageWithUnits(stats.overQuota, dataCategory, formatOptions),
+    };
   }
 
   renderCards() {
+    const {dataCategory} = this.state;
+    const {total, accepted, overQuota: overQuota, filtered} = this.formattedOrgStats;
+
+    const cardData = [
+      {
+        title: tct('Total [dataCategory]', {dataCategory: this.selectedDataCategory}),
+        value: total,
+      },
+      {
+        title: t('Accepted'),
+        value: accepted,
+      },
+      {
+        title: t('Filtered'),
+        description: tct(
+          'Filtered [dataCategory] were blocked due to your inbound data filter rules',
+          {dataCategory}
+        ),
+        value: filtered,
+      },
+      {
+        title: t('Rate-limited'),
+        description: tct(
+          "Rate-limited [dataCategory] were discarded due to usage exceeding your plan's quota.",
+          {dataCategory}
+        ),
+        value: overQuota,
+      },
+    ];
+
     return (
       <CardWrapper>
-        <Card>
-          {tct('Total [dataCategory]', {dataCategory: this.selectedDataCategory})}
-        </Card>
-        <Card>{t('Accepted')}</Card>
-        <Card>{t('Rate-limited')}</Card>
-        <Card>{t('Filtered')}</Card>
+        {cardData.map((c, i) => (
+          <StyledCard key={i}>
+            <HeaderTitle>
+              <OverflowEllipsis>{c.title}</OverflowEllipsis>
+              {c.description && (
+                <QuestionTooltip size="sm" position="top" title={c.description} />
+              )}
+            </HeaderTitle>
+            <CardContent>
+              <OverflowEllipsis>{c.value}</OverflowEllipsis>
+            </CardContent>
+          </StyledCard>
+        ))}
       </CardWrapper>
     );
   }
 
   renderChart() {
-    if (this.state.orgStatsLoading) {
+    if (this.props.orgStatsError) {
+      return (
+        <Panel>
+          <PanelBody>Error. Check console.</PanelBody>
+        </Panel>
+      );
+    }
+
+    if (this.props.orgStatsLoading || !this.props.orgStats) {
       return (
         <Panel>
           <PanelBody>
@@ -128,16 +210,44 @@ class OrganizationStats extends React.Component<Props, State> {
       );
     }
 
+    // const {orgStats} = this.props;
+    const {dataCategory} = this.state;
+    const {stats} = this.formattedOrgStats;
+
+    const today = moment().format('YYYY-MM-DD');
+    const start = moment().subtract(30, 'days').format('YYYY-MM-DD');
+
     return (
       <Panel>
-        <PanelBody>This is the chart</PanelBody>
+        <Chart
+          hasTransactions
+          hasAttachments={false}
+          usagePeriodStart={start}
+          usagePeriodEnd={today}
+          usagePeriodToday={today}
+          statsAttachments={stats}
+          statsErrors={stats}
+          statsTransactions={stats}
+        />
+
+        <ButtonBar active={dataCategory} merged>
+          {Object.keys(DataCategory).map(k => {
+            return (
+              <Button
+                key={DataCategory[k]}
+                barId={DataCategory[k]}
+                onClick={() => this.setSelectedDataCategory(DataCategory[k])}
+              >
+                {capitalize(DataCategory[k])}
+              </Button>
+            );
+          })}
+        </ButtonBar>
       </Panel>
     );
   }
 
   render() {
-    const {dataCategory} = this.state;
-
     return (
       <PageContent>
         <PageHeader>
@@ -145,22 +255,9 @@ class OrganizationStats extends React.Component<Props, State> {
             {tct('Organization Usage Stats for [dataCategory]', {
               dataCategory: this.selectedDataCategory,
             })}
-
-            <ButtonBar active={dataCategory} merged>
-              {Object.keys(DataCategory).map(k => {
-                return (
-                  <Button
-                    key={DataCategory[k]}
-                    barId={DataCategory[k]}
-                    onClick={() => this.setSelectedDataCategory(DataCategory[k])}
-                  >
-                    {capitalize(DataCategory[k])}
-                  </Button>
-                );
-              })}
-            </ButtonBar>
           </PageHeading>
         </PageHeader>
+
         {this.renderCards()}
         {this.renderChart()}
       </PageContent>
@@ -168,7 +265,7 @@ class OrganizationStats extends React.Component<Props, State> {
   }
 }
 
-export default OrganizationStats;
+export default withOrgStats(OrganizationStats);
 
 const CardWrapper = styled('div')`
   display: grid;
@@ -181,4 +278,18 @@ const CardWrapper = styled('div')`
   @media (max-width: ${p => p.theme.breakpoints[0]}) {
     grid-auto-flow: row;
   }
+`;
+
+const StyledCard = styled(Card)`
+  align-items: flex-start;
+  min-height: 95px;
+  padding: ${space(2)} ${space(3)};
+  color: ${p => p.theme.textColor};
+`;
+const CardContent = styled('div')`
+  margin-top: ${space(1)};
+  font-size: 32px;
+`;
+const OverflowEllipsis = styled('div')`
+  ${overflowEllipsis};
 `;

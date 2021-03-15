@@ -1336,12 +1336,16 @@ class QueryTransformTest(TestCase):
         end_time = before_now(seconds=1)
 
         discover.query(
+<<<<<<< Updated upstream
             selected_columns=[
                 "transaction",
                 "avg(transaction.duration)",
                 "stddev(transaction.duration)",
                 "max(timestamp)",
             ],
+=======
+            selected_columns=["transaction", "avg(transaction.duration)", "max(timestamp)"],
+>>>>>>> Stashed changes
             query="http.method:GET max(timestamp):>2019-12-01",
             params={"project_id": [self.project.id], "start": start_time, "end": end_time},
             use_aggregate_conditions=True,
@@ -1354,7 +1358,10 @@ class QueryTransformTest(TestCase):
             dataset=Dataset.Discover,
             aggregations=[
                 ["avg", "duration", "avg_transaction_duration"],
+<<<<<<< Updated upstream
                 ["stddevSamp", "duration", "stddev_transaction_duration"],
+=======
+>>>>>>> Stashed changes
                 ["max", "timestamp", "max_timestamp"],
             ],
             having=[["max_timestamp", ">", 1575158400]],
@@ -1383,12 +1390,16 @@ class QueryTransformTest(TestCase):
                 "data": [{"transaction": "api.do_things", "duration": 200}],
             }
             discover.query(
+<<<<<<< Updated upstream
                 selected_columns=[
                     "transaction",
                     "avg(transaction.duration)",
                     "stddev(transaction.duration)",
                     "max(timestamp)",
                 ],
+=======
+                selected_columns=["transaction", "avg(transaction.duration)", "max(timestamp)"],
+>>>>>>> Stashed changes
                 query=f"http.method:GET avg(transaction.duration):>{query_string}",
                 params={"project_id": [self.project.id], "start": start_time, "end": end_time},
                 use_aggregate_conditions=True,
@@ -1401,7 +1412,10 @@ class QueryTransformTest(TestCase):
                 dataset=Dataset.Discover,
                 aggregations=[
                     ["avg", "duration", "avg_transaction_duration"],
+<<<<<<< Updated upstream
                     ["stddevSamp", "duration", "stddev_transaction_duration"],
+=======
+>>>>>>> Stashed changes
                     ["max", "timestamp", "max_timestamp"],
                 ],
                 having=[["avg_transaction_duration", ">", value]],

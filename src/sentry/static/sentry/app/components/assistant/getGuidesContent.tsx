@@ -119,7 +119,11 @@ export default function getGuidesContent(orgSlug: string | null): GuidesContent 
     },
     {
       guide: 'for_review_guide',
+<<<<<<< Updated upstream
       requiredTargets: ['for_review_guide_tab', 'inbox_guide_reason', 'is_inbox_tab'],
+=======
+      requiredTargets: ['for_review_guide_tab', 'inbox_guide_reason'],
+>>>>>>> Stashed changes
       steps: [
         {
           target: 'for_review_guide_tab',

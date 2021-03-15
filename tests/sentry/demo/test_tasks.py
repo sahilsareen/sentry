@@ -1,5 +1,6 @@
 from django.test import override_settings
 
+<<<<<<< Updated upstream
 from sentry.demo.tasks import delete_users_orgs, ORG_BUFFER_SIZE, build_up_org_buffer
 from sentry.demo.models import DemoOrganization, DemoUser, DemoOrgStatus
 from sentry.models import Organization, User
@@ -27,6 +28,23 @@ class DeleteUsersOrgTest(DemoTaskBaseClass):
 
         org = self.create_demo_org(date_assigned=date_assigned, status=DemoOrgStatus.ACTIVE)
         user = self.create_demo_user(date_assigned=date_assigned)
+=======
+from sentry.demo.tasks import delete_users_orgs
+from sentry.models import Organization, User
+from sentry.testutils import TestCase
+from sentry.testutils.helpers.datetime import before_now
+
+
+class DeleteUsersOrgTest(TestCase):
+    def test_delete_success(self):
+        created_date = before_now(hours=30)
+        org = self.create_organization(
+            date_added=created_date,
+            flags=Organization.flags["demo_mode"],
+        )
+
+        user = self.create_user(date_joined=created_date, flags=User.flags["demo_mode"])
+>>>>>>> Stashed changes
 
         with self.tasks():
             delete_users_orgs()
@@ -36,10 +54,20 @@ class DeleteUsersOrgTest(DemoTaskBaseClass):
 
     @override_settings(DEMO_MODE=False)
     def test_demo_mode_disabled(self):
+<<<<<<< Updated upstream
         date_assigned = before_now(hours=30)
 
         org = self.create_demo_org(date_assigned=date_assigned, status=DemoOrgStatus.ACTIVE)
         user = self.create_demo_user(date_assigned=date_assigned)
+=======
+        created_date = before_now(hours=30)
+        org = self.create_organization(
+            date_added=created_date,
+            flags=Organization.flags["demo_mode"],
+        )
+
+        user = self.create_user(date_joined=created_date, flags=User.flags["demo_mode"])
+>>>>>>> Stashed changes
 
         with self.tasks():
             delete_users_orgs()
@@ -48,10 +76,20 @@ class DeleteUsersOrgTest(DemoTaskBaseClass):
         assert User.objects.filter(id=user.id).exists()
 
     def test_recently_created(self):
+<<<<<<< Updated upstream
         date_assigned = before_now(hours=20)
 
         org = self.create_demo_org(date_assigned=date_assigned, status=DemoOrgStatus.ACTIVE)
         user = self.create_demo_user(date_assigned=date_assigned)
+=======
+        created_date = before_now(hours=20)
+        org = self.create_organization(
+            date_added=created_date,
+            flags=Organization.flags["demo_mode"],
+        )
+
+        user = self.create_user(date_joined=created_date, flags=User.flags["demo_mode"])
+>>>>>>> Stashed changes
 
         with self.tasks():
             delete_users_orgs()
@@ -59,6 +97,7 @@ class DeleteUsersOrgTest(DemoTaskBaseClass):
         assert Organization.objects.filter(id=org.id).exists()
         assert User.objects.filter(id=user.id).exists()
 
+<<<<<<< Updated upstream
     def test_pending_org(self):
         date_assigned = before_now(hours=30)
         org = self.create_demo_org(date_assigned=date_assigned, status=DemoOrgStatus.PENDING)
@@ -114,3 +153,18 @@ class BuildUpOrgBufferTest(DemoTaskBaseClass):
             build_up_org_buffer()
 
         assert mock_create_demo_org.call_count == 0
+=======
+    def test_no_flag(self):
+        created_date = before_now(hours=30)
+        org = self.create_organization(
+            date_added=created_date,
+        )
+
+        user = self.create_user(date_joined=created_date, flags=0)
+
+        with self.tasks():
+            delete_users_orgs()
+
+        assert Organization.objects.filter(id=org.id).exists()
+        assert User.objects.filter(id=user.id).exists()
+>>>>>>> Stashed changes

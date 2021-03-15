@@ -129,4 +129,15 @@ export const DropdownItemSubContainer = styled('div')`
 
 export const StyledTruncate = styled(Truncate)`
   margin-left: ${space(1)};
+<<<<<<< Updated upstream
+=======
+
+  /**
+   * This is the class added to the element that is shown on hover.
+   */
+  .full-value {
+    left: auto;
+    right: -5px;
+  }
+>>>>>>> Stashed changes
 `;

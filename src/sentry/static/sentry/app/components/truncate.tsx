@@ -8,6 +8,7 @@ type DefaultProps = {
   minLength: number;
   maxLength: number;
   leftTrim: boolean;
+  trimRegex?: RegExp;
   expandable: boolean;
   expandDirection: 'left' | 'right';
 };
@@ -50,6 +51,7 @@ class Truncate extends React.Component<Props, State> {
   };
 
   render() {
+<<<<<<< Updated upstream
     const {
       className,
       leftTrim,
@@ -60,6 +62,9 @@ class Truncate extends React.Component<Props, State> {
       expandable,
       expandDirection,
     } = this.props;
+=======
+    const {leftTrim, trimRegex, maxLength, value, expandable} = this.props;
+>>>>>>> Stashed changes
     const isTruncated = value.length > maxLength;
     let shortValue: React.ReactNode = '';
 
@@ -69,6 +74,7 @@ class Truncate extends React.Component<Props, State> {
         : value.slice(0, maxLength - 4);
 
       // Try to trim to values from the regex
+<<<<<<< Updated upstream
       if (
         trimRegex &&
         leftTrim &&
@@ -88,6 +94,22 @@ class Truncate extends React.Component<Props, State> {
           lastIndex = slicedValue.length;
         }
         shortValue = <span>{slicedValue.slice(0, lastIndex)} …</span>;
+=======
+      if (trimRegex && slicedValue.search(trimRegex) >= 0) {
+        if (leftTrim) {
+          shortValue = (
+            <span>
+              … {slicedValue.slice(slicedValue.search(trimRegex), slicedValue.length)}
+            </span>
+          );
+        } else {
+          const matches = slicedValue.match(trimRegex);
+          const lastIndex = matches
+            ? slicedValue.lastIndexOf(matches[matches.length - 1]) + 1
+            : slicedValue.length;
+          shortValue = <span>{slicedValue.slice(0, lastIndex)} …</span>;
+        }
+>>>>>>> Stashed changes
       } else if (leftTrim) {
         shortValue = <span>… {slicedValue}</span>;
       } else {

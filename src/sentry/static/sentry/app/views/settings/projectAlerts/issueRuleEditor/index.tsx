@@ -455,6 +455,7 @@ class IssueRuleEditor extends AsyncView<Props, State> {
     return owner.split(':')[1];
   };
 
+<<<<<<< Updated upstream
   handleOwnerChange = ({value}: {value?: string; label: string}) => {
     if (value) {
       // currently only supporting teams as owners
@@ -463,6 +464,11 @@ class IssueRuleEditor extends AsyncView<Props, State> {
       // allow owner to be set to undefined (unassigned option)
       this.handleChange('owner', value);
     }
+=======
+  handleOwnerChange = (optionRecord: {value: string; label: string}) => {
+    // currently only supporting teams as owners
+    this.handleChange('owner', `team:${optionRecord.value}`);
+>>>>>>> Stashed changes
   };
 
   renderLoading() {
@@ -561,8 +567,11 @@ class IssueRuleEditor extends AsyncView<Props, State> {
                       organization={organization}
                       value={this.getTeamId()}
                       onChange={this.handleOwnerChange}
+<<<<<<< Updated upstream
                       filteredTeamIds={userTeams}
                       includeUnassigned
+=======
+>>>>>>> Stashed changes
                     />
                   </StyledField>
                 </Feature>

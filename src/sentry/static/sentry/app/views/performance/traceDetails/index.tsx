@@ -33,7 +33,11 @@ class TraceSummary extends React.Component<Props> {
     this.getTraceSlug();
 
     return (
+<<<<<<< Updated upstream
       <SentryDocumentTitle title={this.getDocumentTitle()} orgSlug={organization.slug}>
+=======
+      <SentryDocumentTitle title={this.getDocumentTitle()} objSlug={organization.slug}>
+>>>>>>> Stashed changes
         <StyledPageContent>
           <LightWeightNoProjectMessage organization={organization}>
             <TraceDetailsContent

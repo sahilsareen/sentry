@@ -193,8 +193,18 @@ class OrganizationEventsV2EndpointBase(OrganizationEventsEndpointBase):
                 row["transaction.status"] = SPAN_STATUS_CODE_TO_NAME.get(row["transaction.status"])
 
         fields = request.GET.getlist("field")
+<<<<<<< Updated upstream
         if "issue" in fields:  # Look up the short ID and return that in the results
             self.handle_issues(results, project_ids, organization)
+=======
+        has_issues = "issue" in fields
+        if has_issues:  # Look up the short ID and return that in the results
+            issue_ids = {row.get("issue.id") for row in results}
+            issues = Group.issues_mapping(issue_ids, project_ids, organization)
+            for result in results:
+                if has_issues and "issue.id" in result:
+                    result["issue"] = issues.get(result["issue.id"], "unknown")
+>>>>>>> Stashed changes
 
         if not ("project.id" in first_row or "projectid" in first_row):
             return results

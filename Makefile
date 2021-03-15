@@ -128,7 +128,11 @@ fetch-release-registry:
 
 run-acceptance:
 	@echo "--> Running acceptance tests"
+<<<<<<< Updated upstream
 	pytest tests/acceptance --cov . --cov-report="xml:.artifacts/acceptance.coverage.xml" --junit-xml=".artifacts/acceptance.junit.xml"
+=======
+	py.test tests/acceptance --cov . --cov-report="xml:.artifacts/acceptance.coverage.xml" --junit-xml=".artifacts/acceptance.junit.xml"
+>>>>>>> Stashed changes
 	@echo ""
 
 test-cli:

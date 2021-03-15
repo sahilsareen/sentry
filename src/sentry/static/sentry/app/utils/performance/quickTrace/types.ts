@@ -17,6 +17,7 @@ export type EventLite = {
   project_slug: string;
   parent_event_id: string | null;
   parent_span_id: string | null;
+<<<<<<< Updated upstream
 };
 
 export type TraceError = {
@@ -25,6 +26,8 @@ export type TraceError = {
   span: string;
   transaction: string;
   project_slug: string;
+=======
+>>>>>>> Stashed changes
 };
 
 export type TraceLite = EventLite[];

@@ -68,8 +68,11 @@ class RuleListRow extends React.Component<Props, State> {
       ? {type: 'team' as Actor['type'], id: ownerId, name: ''}
       : null;
 
+<<<<<<< Updated upstream
     const canEdit = ownerId ? userTeams.has(ownerId) : true;
 
+=======
+>>>>>>> Stashed changes
     return (
       <ErrorBoundary>
         <RuleType>{isIssueAlert(rule) ? t('Issue') : t('Metric')}</RuleType>

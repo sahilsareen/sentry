@@ -21,7 +21,11 @@ import {BannerContainer, BannerSummary} from './styles';
 
 const MAX_ERRORS = 100;
 
+<<<<<<< Updated upstream
 export type Error = ErrorItem['props']['error'];
+=======
+type Error = ErrorItem['props']['error'];
+>>>>>>> Stashed changes
 
 type Props = {
   api: Client;
@@ -133,7 +137,13 @@ class Errors extends React.Component<Props, State> {
     const otherErrors: Array<Error> =
       eventErrors.length > MAX_ERRORS ? eventErrors : uniqWith(eventErrors, isEqual);
 
+<<<<<<< Updated upstream
     const errors = [...otherErrors, ...proGuardErrors];
+=======
+    // XXX: uniqWith returns unique errors and is not performant with large datasets
+    const errors: Array<Error> =
+      event.errors.length > MAX_ERRORS ? event.errors : uniqWith(event.errors, isEqual);
+>>>>>>> Stashed changes
 
     return (
       <StyledBanner priority="danger">

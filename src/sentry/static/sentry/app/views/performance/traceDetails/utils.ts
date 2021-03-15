@@ -38,6 +38,7 @@ function traceVisitor() {
       // No user conditions yet, so all transactions are relevant.
       accumulator.relevantTransactions += 1;
     }
+<<<<<<< Updated upstream
 
     if (accumulator.startTimestamp > event.start_timestamp) {
       accumulator.startTimestamp = event.start_timestamp;
@@ -51,6 +52,8 @@ function traceVisitor() {
       accumulator.maxGeneration = event.generation;
     }
 
+=======
+>>>>>>> Stashed changes
     return accumulator;
   };
 }
@@ -61,6 +64,7 @@ export function getTraceInfo(trace) {
     relevantProjects: 0,
     totalTransactions: 0,
     relevantTransactions: 0,
+<<<<<<< Updated upstream
     startTimestamp: Number.MAX_SAFE_INTEGER,
     endTimestamp: 0,
     maxGeneration: 0,
@@ -70,3 +74,7 @@ export function getTraceInfo(trace) {
 export {getDurationDisplay} from 'app/components/events/interfaces/spans/spanBar';
 
 export {getHumanDuration, toPercent} from 'app/components/events/interfaces/spans/utils';
+=======
+  });
+}
+>>>>>>> Stashed changes

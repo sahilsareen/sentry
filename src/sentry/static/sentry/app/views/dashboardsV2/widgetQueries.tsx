@@ -302,6 +302,10 @@ class WidgetQueries extends React.Component<Props, State> {
             ...prevState,
             timeseriesResults,
             rawResults: (prevState.rawResults ?? []).concat(rawResults),
+<<<<<<< Updated upstream
+=======
+            loading: completed === promises.length ? false : true,
+>>>>>>> Stashed changes
           };
         });
       } catch (err) {

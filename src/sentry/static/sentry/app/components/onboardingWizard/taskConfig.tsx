@@ -141,7 +141,12 @@ export function getOnboardingTasks(
       skippable: true,
       requisites: [OnboardingTaskKey.FIRST_PROJECT, OnboardingTaskKey.FIRST_EVENT],
       actionType: 'external',
+<<<<<<< Updated upstream
       location: 'https://docs.sentry.io/product/error-monitoring/issue-owners/',
+=======
+      location:
+        'https://docs.sentry.io/platform-redirect/?next=/enriching-events/identify-user/',
+>>>>>>> Stashed changes
       display: true,
     },
     {

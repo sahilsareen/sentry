@@ -1,6 +1,10 @@
 from django.http import Http404
 from django.conf import settings
 from django.db import transaction
+<<<<<<< Updated upstream
+=======
+from django.template.defaultfilters import slugify
+>>>>>>> Stashed changes
 
 from sentry.demo.utils import NoDemoOrgReady
 from sentry.utils import auth
@@ -35,4 +39,14 @@ class DemoStartView(BaseView):
         # whether to initialize analytics when accepted_tracking=1
         resp.set_cookie("accepted_tracking", request.POST.get("accepted_tracking"))
 
+<<<<<<< Updated upstream
+=======
+        auth.login(request, user)
+
+        resp = self.redirect(auth.get_login_redirect(request))
+        # set a cookie of whether the user accepteed tracking so we know
+        # whether to initialize analytics when accepted_tracking=1
+        resp.set_cookie("accepted_tracking", request.POST.get("accepted_tracking"))
+
+>>>>>>> Stashed changes
         return resp

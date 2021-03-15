@@ -1,8 +1,15 @@
 import {MinimalProject} from 'app/types';
 
+// Duplicated from getsentry
+export enum DataCategory {
+  ERRORS = 'errors',
+  TRANSACTIONS = 'transactions',
+  ATTACHMENTS = 'attachments',
+}
+
 export type RawStat = {
   quantity: number; // Counting for attachment size
-  timesSeen: number; // Counting for errors or transactions
+  times_seen: number; // Counting for errors or transactions  // FIXME
 };
 
 export type UsageStat = {

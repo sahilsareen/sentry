@@ -738,6 +738,15 @@ class SnubaTestCase(BaseTestCase):
             == 200
         )
 
+    def store_outcome(self, group):
+        data = [self.__wrap_group(group)]
+        assert (
+            requests.post(
+                settings.SENTRY_SNUBA + "/tests/outcomes/insert", data=json.dumps(data)
+            ).status_code
+            == 200
+        )
+
     def to_snuba_time_format(self, datetime_value):
         date_format = "%Y-%m-%d %H:%M:%S%z"
         return datetime_value.strftime(date_format)
@@ -838,6 +847,7 @@ class OutcomesSnubaTest(TestCase):
         super().setUp()
         assert requests.post(settings.SENTRY_SNUBA + "/tests/outcomes/drop").status_code == 200
 
+<<<<<<< Updated upstream
     def __format(self, org_id, project_id, outcome, category, timestamp, key_id):
         return {
             "project_id": project_id,
@@ -853,6 +863,14 @@ class OutcomesSnubaTest(TestCase):
         outcomes = []
         for _ in range(num_times):
             outcomes.append(self.__format(org_id, project_id, outcome, category, timestamp, key_id))
+=======
+    def store_outcomes(self, outcome, num_times=1):
+        outcomes = []
+        for _ in range(num_times):
+            outcome_copy = outcome.copy()
+            outcome_copy["timestamp"] = outcome_copy["timestamp"].strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            outcomes.append(outcome_copy)
+>>>>>>> Stashed changes
 
         assert (
             requests.post(

@@ -15,6 +15,7 @@ export type TraceInfo = {
    * The number of transactions in the trace that matched the user condition.
    */
   relevantTransactions: number;
+<<<<<<< Updated upstream
   /**
    * The very earliest start timestamp in the trace.
    */
@@ -27,4 +28,6 @@ export type TraceInfo = {
    *
    */
   maxGeneration: number;
+=======
+>>>>>>> Stashed changes
 };

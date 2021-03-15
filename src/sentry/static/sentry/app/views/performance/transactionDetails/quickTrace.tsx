@@ -50,7 +50,11 @@ type Props = {
   quickTrace: QuickTraceQueryChildrenProps;
 };
 
+<<<<<<< Updated upstream
 function handleTraceLink(organization: OrganizationSummary) {
+=======
+function handleTraceLink(organization) {
+>>>>>>> Stashed changes
   trackAnalyticsEvent({
     eventKey: 'quick_trace.trace_id.clicked',
     eventName: 'Quick Trace: Trace ID clicked',
@@ -112,7 +116,11 @@ type QuickTracePillsProps = {
   organization: OrganizationSummary;
 };
 
+<<<<<<< Updated upstream
 function singleEventHoverText(event: QuickTraceEvent) {
+=======
+function singleEventHoverText(event: EventLite) {
+>>>>>>> Stashed changes
   return (
     <div>
       <Truncate
@@ -312,7 +320,11 @@ function handleDropdownItem(
 type EventNodeSelectorProps = {
   location: Location;
   organization: OrganizationSummary;
+<<<<<<< Updated upstream
   events: QuickTraceEvent[];
+=======
+  events: EventLite[];
+>>>>>>> Stashed changes
   text: React.ReactNode;
   pad: 'left' | 'right';
   hoverText?: React.ReactNode;
@@ -332,6 +344,7 @@ function EventNodeSelector({
   nodeKey,
   numEvents = 5,
 }: EventNodeSelectorProps) {
+<<<<<<< Updated upstream
   const errors: TraceError[] = [];
   events.forEach(e => {
     e?.errors?.forEach(error => {
@@ -375,6 +388,23 @@ function EventNodeSelector({
         />
       );
     }
+=======
+  if (events.length === 1) {
+    /**
+     * When there is only 1 event, clicking the node should take the user directly to
+     * the event without additional steps.
+     */
+    const target = generateSingleEventTarget(events[0], organization, location);
+    return (
+      <StyledEventNode
+        text={text}
+        pad={pad}
+        hoverText={hoverText}
+        to={target}
+        onClick={() => handleNode(nodeKey, organization)}
+      />
+    );
+>>>>>>> Stashed changes
   } else {
     /**
      * When there is more than 1 event, clicking the node should expand a dropdown to
@@ -383,6 +413,7 @@ function EventNodeSelector({
     return (
       <DropdownLink
         caret={false}
+<<<<<<< Updated upstream
         title={
           <StyledEventNode text={text} pad={pad} hoverText={hoverText} type={type} />
         }
@@ -413,14 +444,56 @@ function EventNodeSelector({
                 first={i === 0 && errors.length === 0}
                 organization={organization}
                 subtext={getDuration(
+=======
+        title={<StyledEventNode text={text} pad={pad} hoverText={hoverText} />}
+        anchorRight
+      >
+        {events.slice(0, numEvents).map((event, i) => {
+          const target = generateSingleEventTarget(event, organization, location);
+          return (
+            <DropdownItem
+              key={event.event_id}
+              onSelect={() => handleDropdownItem(target, nodeKey, organization, false)}
+              first={i === 0}
+            >
+              <DropdownItemSubContainer>
+                <Projects orgId={organization.slug} slugs={[event.project_slug]}>
+                  {({projects}) => {
+                    const project = projects.find(p => p.slug === event.project_slug);
+                    return (
+                      <ProjectBadge
+                        hideName
+                        project={project ? project : {slug: event.project_slug}}
+                        avatarSize={16}
+                      />
+                    );
+                  }}
+                </Projects>
+                <StyledTruncate
+                  value={event.transaction}
+                  maxLength={35}
+                  leftTrim
+                  trimRegex={/\.|\//g}
+                />
+              </DropdownItemSubContainer>
+              <SectionSubtext>
+                {getDuration(
+>>>>>>> Stashed changes
                   event['transaction.duration'] / 1000,
                   event['transaction.duration'] < 1000 ? 0 : 2,
                   true
                 )}
+<<<<<<< Updated upstream
                 subtextType="default"
               />
             );
           })}
+=======
+              </SectionSubtext>
+            </DropdownItem>
+          );
+        })}
+>>>>>>> Stashed changes
         {events.length > numEvents && hoverText && extrasTarget && (
           <DropdownItem
             onSelect={() => handleDropdownItem(extrasTarget, nodeKey, organization, true)}
@@ -433,6 +506,7 @@ function EventNodeSelector({
   }
 }
 
+<<<<<<< Updated upstream
 type DropdownNodeProps = {
   event: TraceError | QuickTraceEvent;
   onSelect?: (eventKey: any) => void;
@@ -478,6 +552,8 @@ function DropdownNodeItem({
   );
 }
 
+=======
+>>>>>>> Stashed changes
 type EventNodeProps = {
   text: React.ReactNode;
   pad: 'left' | 'right';

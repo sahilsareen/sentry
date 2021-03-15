@@ -272,7 +272,11 @@ class OpsBreakdown extends React.Component<Props> {
       );
     }
 
+<<<<<<< Updated upstream
     return <StyledBreakdownNoHeader>{contents}</StyledBreakdownNoHeader>;
+=======
+    return <StyledBreakdown>{contents}</StyledBreakdown>;
+>>>>>>> Stashed changes
   }
 }
 

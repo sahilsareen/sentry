@@ -181,6 +181,15 @@ const aliases = {
    * Default Progressbar color
    */
   progressBar: colors.purple300,
+<<<<<<< Updated upstream
+=======
+
+  /**
+   * Default Progressbar color
+   */
+  progressBackground: colors.gray100,
+} as const;
+>>>>>>> Stashed changes
 
   /**
    * Default Progressbar color
@@ -547,9 +556,13 @@ const darkAliases = {
   chartLineColor: colors.gray500,
   chartLabel: colors.gray400,
   progressBar: colors.purple200,
+<<<<<<< Updated upstream
   progressBackground: colors.gray400,
   badgeBackground: colors.gray400,
   alertBackgroundAlpha: 0.1,
+=======
+  progressBackground: colors.gray500,
+>>>>>>> Stashed changes
 } as const;
 
 export const lightTheme = {
