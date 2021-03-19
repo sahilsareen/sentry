@@ -5,9 +5,9 @@ const path = require('path');
 
 const {CleanWebpackPlugin} = require('clean-webpack-plugin'); // installed via npm
 const webpack = require('webpack');
-const ExtractTextPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
-const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const FixStyleOnlyEntriesPlugin = require('webpack-remove-empty-scripts');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
@@ -263,7 +263,7 @@ let appConfig = {
       {
         test: /\.less$/,
         include: [staticPrefix],
-        use: [ExtractTextPlugin.loader, 'css-loader', 'less-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'less-loader'],
       },
       {
         test: /\.(woff|woff2|ttf|eot|svg|png|gif|ico|jpg|mp4)($|\?)/,
@@ -301,7 +301,7 @@ let appConfig = {
     /**
      * Extract CSS into separate files.
      */
-    new ExtractTextPlugin(),
+    new MiniCssExtractPlugin(),
 
     /**
      * Defines environment specific flags.
@@ -390,6 +390,10 @@ let appConfig = {
       maxAsyncRequests: 7,
       cacheGroups,
     },
+
+    // This only runs in production mode
+    // Grabbed this example from https://github.com/webpack-contrib/css-minimizer-webpack-plugin
+    minimizer: ['...', new CssMinimizerPlugin()],
   },
   devtool: IS_PRODUCTION ? 'source-map' : 'eval-cheap-module-source-map',
 };
@@ -530,8 +534,6 @@ const minificationPlugins = [
     algorithm: 'gzip',
     test: /\.(js|map|css|svg|html|txt|ico|eot|ttf)$/,
   }),
-  new OptimizeCssAssetsPlugin(),
-
   // NOTE: In production mode webpack will automatically minify javascript
   // using the TerserWebpackPlugin.
 ];
