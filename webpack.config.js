@@ -8,7 +8,7 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('mini-css-extract-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries');
+const FixStyleOnlyEntriesPlugin = require('webpack-remove-empty-scripts');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const IntegrationDocsFetchPlugin = require('./build-utils/integration-docs-fetch-plugin');
@@ -153,11 +153,11 @@ supportedLocales
     // multiple expressions.
     //
     // [0] https://github.com/webpack/webpack/blob/7a6a71f1e9349f86833de12a673805621f0fc6f6/lib/optimize/SplitChunksPlugin.js#L309-L320
-    const groupTest = module =>
+    const groupTest = (module, {chunkGraph}) =>
       localeGroupTests.some(pattern =>
         module.nameForCondition && pattern.test(module.nameForCondition())
           ? true
-          : Array.from(module.chunksIterable).some(c => c.name && pattern.test(c.name))
+          : chunkGraph.getModuleChunks(module).some(c => c.name && pattern.test(c.name))
       );
 
     localeChunkGroups[group] = {
@@ -325,7 +325,7 @@ let appConfig = {
     /**
      * This removes empty js files for style only entries (e.g. sentry.less)
      */
-    new FixStyleOnlyEntriesPlugin({silent: true}),
+    new FixStyleOnlyEntriesPlugin({verbose: false}),
 
     new SentryInstrumentation(),
 
@@ -367,6 +367,12 @@ let appConfig = {
       ),
     },
 
+    fallback: {
+      vm: require.resolve('vm-browserify'),
+      stream: require.resolve('stream-browserify'),
+      crypto: require.resolve('crypto-browserify'),
+    },
+
     modules: ['node_modules'],
     extensions: ['.jsx', '.js', '.json', '.ts', '.tsx', '.less'],
   },
@@ -376,6 +382,8 @@ let appConfig = {
     sourceMapFilename: '[name].js.map',
   },
   optimization: {
+    chunkIds: 'named',
+    moduleIds: 'named',
     splitChunks: {
       chunks: 'all',
       maxInitialRequests: 5,
