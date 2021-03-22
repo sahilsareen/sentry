@@ -3,7 +3,7 @@
 module.exports = {
   stories: ['../docs-ui/components/*.stories.*'],
   core: {
-    builder: "webpack5",
+    builder: 'webpack5',
   },
   addons: [
     {
