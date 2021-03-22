@@ -195,7 +195,6 @@
     "less-loader": "^8.0.0",
     "style-loader": "^2.0.0",
     "terser-webpack-plugin": "^5.0.0",
-    "webpack-dev-middleware": "^4.1.0",
     "webpack-virtual-modules": "^0.4.2"
   },
   "APIMethod": "stub",
