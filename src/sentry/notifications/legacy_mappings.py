@@ -59,14 +59,6 @@ USER_OPTION_SETTINGS = {
     },
 }
 
-FINE_TUNING_KEY_MAP = {
-    FineTuningAPIKey.ALERTS: "mail:alert",
-    FineTuningAPIKey.DEPLOY: "deploy-emails",
-    FineTuningAPIKey.EMAIL: "mail:email",
-    FineTuningAPIKey.REPORTS: "reports:disabled-organizations",
-    FineTuningAPIKey.WORKFLOW: "workflow:notifications",
-}
-
 KEYS_TO_LEGACY_KEYS = {
     NotificationSettingTypes.DEPLOY: "deploy-emails",
     NotificationSettingTypes.ISSUE_ALERTS: "mail:alert",
@@ -154,10 +146,6 @@ def get_type_from_fine_tuning_key(key: FineTuningAPIKey) -> NotificationSettingT
         FineTuningAPIKey.DEPLOY: NotificationSettingTypes.DEPLOY,
         FineTuningAPIKey.WORKFLOW: NotificationSettingTypes.WORKFLOW,
     }.get(key)
-
-
-def get_legacy_key_from_fine_tuning_key(key: FineTuningAPIKey) -> str:
-    return FINE_TUNING_KEY_MAP.get(key)
 
 
 def get_type_from_user_option_settings_key(key: UserOptionsSettingsKey) -> NotificationSettingTypes:

@@ -5,21 +5,24 @@ from rest_framework.response import Response
 from sentry.api.bases.user import UserEndpoint
 from sentry.api.fields.empty_integer import EmptyIntegerField
 from sentry.api.serializers import serialize, Serializer
-from sentry.models import UserOption
+from sentry.models import NotificationSetting, UserOption
 from sentry.models.integration import ExternalProviders
-from sentry.models.notificationsetting import NotificationSetting
 from sentry.notifications.legacy_mappings import (
     get_option_value_from_int,
     get_type_from_user_option_settings_key,
     map_notification_settings_to_legacy,
     USER_OPTION_SETTINGS,
 )
-from sentry.notifications.types import NotificationScopeType, UserOptionsSettingsKey
+from sentry.notifications.types import (
+    NotificationSettingTypes,
+    UserOptionsSettingsKey,
+    NotificationScopeType,
+)
 
 
 class UserNotificationsSerializer(Serializer):
     def get_attrs(self, item_list, user, *args, **kwargs):
-        data = list(
+        user_options = list(
             UserOption.objects.filter(
                 user__in=item_list, organization=None, project=None
             ).select_related("user")
