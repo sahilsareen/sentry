@@ -40,11 +40,11 @@ class NotificationsManager(BaseManager):
         self,
         provider: ExternalProviders,
         type: NotificationSettingTypes,
-        user=None,
-        team=None,
-        project=None,
-        organization=None,
-    ):
+        user: Optional[User] = None,
+        team: Optional[Team] = None,
+        project: Optional[Project] = None,
+        organization: Optional[Organization] = None,
+    ) -> NotificationSettingOptionValues:
         """
         In this temporary implementation, always read EMAIL settings from
         UserOptions. One and only one of (user, team, project, or organization)
@@ -68,11 +68,11 @@ class NotificationsManager(BaseManager):
         provider: ExternalProviders,
         type: NotificationSettingTypes,
         value: NotificationSettingOptionValues,
-        user=None,
-        team=None,
-        project=None,
-        organization=None,
-    ):
+        user: Optional[User] = None,
+        team: Optional[Team] = None,
+        project: Optional[Project] = None,
+        organization: Optional[Organization] = None,
+    ) -> None:
         """
         Save a target's notification preferences.
         Examples:
@@ -130,11 +130,11 @@ class NotificationsManager(BaseManager):
         self,
         provider: ExternalProviders,
         type: NotificationSettingTypes,
-        user=None,
-        team=None,
-        project=None,
-        organization=None,
-    ):
+        user: Optional[User] = None,
+        team: Optional[Team] = None,
+        project: Optional[Project] = None,
+        organization: Optional[Organization] = None,
+    ) -> None:
         """
         We don't anticipate this function will be used by the API but is useful
         for tests. This can also be called by `update_settings` when attempting
