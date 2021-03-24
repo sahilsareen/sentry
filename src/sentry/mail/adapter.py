@@ -17,12 +17,18 @@ from sentry.models import (
     GroupSubscription,
     GroupSubscriptionReason,
     Integration,
+    NotificationSetting,
     Project,
     ProjectOption,
     ProjectOwnership,
     Release,
     Team,
     User,
+)
+from sentry.models.integration import ExternalProviders
+from sentry.notifications.types import (
+    NotificationSettingTypes,
+    NotificationSettingOptionValues,
 )
 from sentry.plugins.base.structs import Notification
 from sentry.plugins.base import plugins
@@ -49,7 +55,6 @@ class MailAdapter:
     """
 
     mail_option_key = "mail:subject_prefix"
-    alert_option_key = "mail:alert"
 
     def rule_notify(self, event, futures, target_type, target_identifier=None):
         metrics.incr("mail_adapter.rule_notify")
@@ -148,7 +153,10 @@ class MailAdapter:
         Return a collection of user IDs that are eligible to receive
         notifications for the provided project.
         """
-        return project.get_notification_recipients(self.alert_option_key)
+        users = NotificationSetting.objects.get_notification_recipients(
+            ExternalProviders.EMAIL, project
+        )
+        return [user.id for user in users]
 
     def should_notify(self, target_type, group):
         metrics.incr("mail_adapter.should_notify")
@@ -222,9 +230,17 @@ class MailAdapter:
 
     def disabled_users_from_project(self, project: Project) -> Set[User]:
         """ Get a set of users that have disabled Issue Alert notifications for a given project. """
-        alert_settings = project.get_member_alert_settings(self.alert_option_key)
-        disabled_users = {user for user, setting in alert_settings.items() if setting == 0}
-        return disabled_users
+        notification_settings = NotificationSetting.objects.find_settings(
+            ExternalProviders.EMAIL,
+            NotificationSettingTypes.ISSUE_ALERTS,
+            project=project,
+        )
+
+        return {
+            notification_setting.user
+            for notification_setting in notification_settings
+            if notification_setting.value == NotificationSettingOptionValues.NEVER
+        }
 
     def get_send_to_team(self, project, target_identifier):
         if target_identifier is None:
