@@ -9,6 +9,7 @@ from sentry.notifications.helpers import (
     get_scope_type,
     get_target,
     should_user_be_notified,
+    transform_to_notification_settings_by_user,
     validate,
 )
 from sentry.notifications.types import (
@@ -43,7 +44,7 @@ class NotificationsManager(BaseManager):
         must not be null. This function automatically translates a missing DB
         row to NotificationSettingOptionValues.DEFAULT.
         """
-        from sentry.model import UserOption
+        from sentry.models import UserOption
 
         setting_option = self.find_settings(
             provider, type, user, team, project, organization
@@ -74,7 +75,7 @@ class NotificationsManager(BaseManager):
           * Updating a user's per-project preferences
           * Updating a user's per-organization preferences
         """
-        from sentry.model import UserOption
+        from sentry.models import UserOption
 
         # A missing DB row is equivalent to DEFAULT.
         if value == NotificationSettingOptionValues.DEFAULT:
@@ -136,7 +137,7 @@ class NotificationsManager(BaseManager):
         for tests. This can also be called by `update_settings` when attempting
         to set a notification preference to DEFAULT.
         """
-        from sentry.model import UserOption
+        from sentry.models import UserOption
 
         with transaction.atomic():
             self.find_settings(provider, type, user, team, project, organization).delete()
@@ -171,7 +172,7 @@ class NotificationsManager(BaseManager):
 
     @staticmethod
     def remove_legacy_option(type: Optional[NotificationSettingTypes] = None, **kwargs) -> None:
-        from sentry.model import UserOption
+        from sentry.models import UserOption
 
         if type:
             kwargs["key"] = get_legacy_key(type)
@@ -225,7 +226,7 @@ class NotificationsManager(BaseManager):
             user_id_option, project=project, organization=organization
         )
         target = get_target(user, team)
-        return self._filter(provider, type, scope_type, scope_identifier, target)
+        return self._filter(provider, type, scope_type, scope_identifier, [target])
 
     def get_for_user_by_projects(
         self,
@@ -271,12 +272,12 @@ class NotificationsManager(BaseManager):
                 scope_identifier=parent.id,
             )
             | Q(
-                scope_type=NotificationScopeType.USER,
+                scope_type=NotificationScopeType.USER.value,
                 scope_identifier__in=[user.id for user in users],
             ),
             provider=provider.value,
             type=type.value,
-            target__in=[user.actor for user in users],
+            target__in=[user.actor.id for user in users],
         )
 
     def filter_to_subscribed_users(
@@ -292,7 +293,7 @@ class NotificationsManager(BaseManager):
         notification_settings = self.get_for_users_by_parent(
             provider, NotificationSettingTypes.ISSUE_ALERTS, parent=project, users=users
         )
-        notification_settings_by_user = self.transform_to_notification_settings_by_user(
+        notification_settings_by_user = transform_to_notification_settings_by_user(
             notification_settings, users
         )
         return [
@@ -307,5 +308,8 @@ class NotificationsManager(BaseManager):
         dictionary. Finally, we traverse the set of users and return the ones
         that should get a notification.
         """
-        users = project.member_set.values_list("user", flat=True)
+        from sentry.models import User
+
+        user_ids = project.member_set.values_list("user", flat=True)
+        users = User.objects.filter(id__in=user_ids)
         return self.filter_to_subscribed_users(provider, project, users)
