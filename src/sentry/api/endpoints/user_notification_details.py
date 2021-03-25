@@ -1,4 +1,5 @@
 from collections import defaultdict
+
 from rest_framework import serializers, status
 from rest_framework.response import Response
 
@@ -13,16 +14,12 @@ from sentry.notifications.legacy_mappings import (
     map_notification_settings_to_legacy,
     USER_OPTION_SETTINGS,
 )
-from sentry.notifications.types import (
-    NotificationSettingTypes,
-    UserOptionsSettingsKey,
-    NotificationScopeType,
-)
+from sentry.notifications.types import NotificationScopeType, UserOptionsSettingsKey
 
 
 class UserNotificationsSerializer(Serializer):
     def get_attrs(self, item_list, user, *args, **kwargs):
-        user_options = list(
+        data = list(
             UserOption.objects.filter(
                 user__in=item_list, organization=None, project=None
             ).select_related("user")
