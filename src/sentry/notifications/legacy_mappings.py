@@ -1,5 +1,5 @@
 from collections import namedtuple
-from typing import Iterable, List, Mapping
+from typing import Any, Iterable, List, Mapping
 from sentry.notifications.types import (
     FineTuningAPIKey,
     NotificationScopeType,
@@ -185,7 +185,9 @@ def get_key_value_from_legacy(
     return type, option_value
 
 
-def get_legacy_from_notification_settings(notification_setting, actor_mapping: Mapping):
+def get_legacy_from_notification_settings(
+    notification_setting, actor_mapping: Mapping[int, Any]
+) -> LegacyUserOptionClone:
     """
     TODO(mgaeta): If getting projects and organizations is a bottleneck,
      prefetch them and pass them as a Mapping.
@@ -197,7 +199,7 @@ def get_legacy_from_notification_settings(notification_setting, actor_mapping: M
     data = {
         "key": key,
         "value": get_legacy_value(type, value),
-        "user": actor_mapping.get(notification_setting.target),
+        "user": actor_mapping.get(notification_setting.target_id),
         "project": None,
         "organization": None,
     }
@@ -215,7 +217,7 @@ def get_legacy_from_notification_settings(notification_setting, actor_mapping: M
 
 
 def map_notification_settings_to_legacy(
-    notification_settings: Iterable, actor_mapping: Mapping
+    notification_settings: Iterable, actor_mapping: Mapping[int, Any]
 ) -> List:
     """ A hack for legacy serializers. Pretend a list of NotificationSettings is a list of UserOptions. """
     return [
