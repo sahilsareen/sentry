@@ -21,17 +21,11 @@ class StaticMediaTest(TestCase):
         manifest here refers to the webpack manifest for frontend assets
         """
 
-        DIST_PATH = "src/sentry/static/sentry/dist"
-        MANIFEST_PATH = f"{DIST_PATH}/manifest.json"
-        APP_FILE = "app.f00f00.js"
+        app_manifest = {
+            "app.js": "app.f00f00.js",
+        }
 
-        # Need to create a manifest file and `APP_FILE` in `DIST_PATH`
-        # Otherwise this will 404
-        with open(MANIFEST_PATH, "w") as manifest_fp:
-            manifest_fp.write(f"""{{"app.js": "{APP_FILE}"}}""")
-
-        try:
-            open(f"{DIST_PATH}/{APP_FILE}", "a").close()
+        with self.static_asset_manifest(app_manifest):
             url = "/_static/sentry/dist/app.js"
 
             response = self.client.get(url)
@@ -51,13 +45,6 @@ class StaticMediaTest(TestCase):
                 assert response["Cache-Control"] == NEVER_CACHE
                 assert response["Vary"] == "Accept-Encoding"
                 assert response["Access-Control-Allow-Origin"] == "*"
-
-        finally:
-            try:
-                os.unlink(f"{DIST_PATH}/{APP_FILE}")
-                os.unlink(MANIFEST_PATH)
-            except Exception:
-                pass
 
     @override_settings(DEBUG=False)
     def test_no_cors(self):

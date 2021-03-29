@@ -111,6 +111,28 @@ class BaseTestCase(Fixtures, Exam):
 
     @classmethod
     @contextmanager
+    def static_asset_manifest(cls, manifest_data):
+        dist_path = "src/sentry/static/sentry/dist"
+        manifest_path = f"{dist_path}/manifest.json"
+        manifest_fp = open(manifest_path, "w")
+        json.dump(manifest_data, manifest_fp)
+        manifest_fp.close()
+
+        files = []
+        for file_path in manifest_data.values():
+            full_path = f"{dist_path}/{file_path}"
+            open(full_path, "a").close
+            files.append(full_path)
+
+        try:
+            yield {"manifest": manifest_data, "files": files}
+        finally:
+            os.unlink(manifest_path)
+            for filepath in files:
+                os.unlink(filepath)
+
+    @classmethod
+    @contextmanager
     def capture_on_commit_callbacks(cls, using=DEFAULT_DB_ALIAS, execute=False):
         """
         Context manager to capture transaction.on_commit() callbacks.

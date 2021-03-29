@@ -61,7 +61,7 @@ def locale_js_include(context):
     if hasattr(request, "csp_nonce"):
         nonce = f' nonce="{request.csp_nonce}"'
 
-    href = get_asset_url("sentry", "dist/locale/" + lang_code + ".js")
+    href = get_manifest_url("sentry", "locale/" + lang_code + ".js")
     return mark_safe(f'<script src="{href}"{crossorigin()}{nonce}></script>')
 
 
