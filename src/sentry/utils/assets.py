@@ -3,6 +3,15 @@ from django.conf import settings
 from manifest_loader.utils import _get_manifest, _load_from_manifest
 
 
+def get_manifest_obj():
+    """
+    Returns the webpack asset manifest as a dict of <file key, hashed file name>
+
+    The `manifest_loader` library caches this (if `cache` settings is set)
+    """
+    return _get_manifest()
+
+
 def get_manifest_url(module, key):
     """
     Returns an asset URL that is produced by webpack. Uses webpack's manifest to map
@@ -12,7 +21,7 @@ def get_manifest_url(module, key):
       {% manifest_asset_url 'sentry' 'sentry.css' %}
       =>  "/_static/sentry/dist/sentry.filehash123.css"
     """
-    manifest_obj = _get_manifest()
+    manifest_obj = get_manifest_obj()
     manifest_value = _load_from_manifest(manifest_obj, key=key)
 
     return "{}/{}/dist/{}".format(settings.STATIC_URL.rstrip("/"), module, manifest_value)
