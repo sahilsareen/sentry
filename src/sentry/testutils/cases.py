@@ -114,14 +114,14 @@ class BaseTestCase(Fixtures, Exam):
     def static_asset_manifest(cls, manifest_data):
         dist_path = "src/sentry/static/sentry/dist"
         manifest_path = f"{dist_path}/manifest.json"
-        manifest_fp = open(manifest_path, "w")
-        json.dump(manifest_data, manifest_fp)
-        manifest_fp.close()
+
+        with open(manifest_path, "w") as manifest_fp:
+            json.dump(manifest_data, manifest_fp)
 
         files = []
         for file_path in manifest_data.values():
             full_path = f"{dist_path}/{file_path}"
-            open(full_path, "a").close
+            open(full_path, "a").close()
             files.append(full_path)
 
         try:
