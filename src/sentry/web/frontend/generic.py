@@ -7,6 +7,8 @@ from django.http import HttpResponseNotFound, Http404
 from django.contrib.staticfiles import finders
 from django.views import static
 
+from sentry.utils.assets import get_manifest_obj
+
 FOREVER_CACHE = "max-age=315360000"
 NEVER_CACHE = "max-age=0, no-cache, no-store, must-revalidate"
 
@@ -33,13 +35,40 @@ def resolve(path):
     return os.path.split(absolute_path)
 
 
+def static_media_with_manifest(request, **kwargs):
+    """
+    Serve static files that are generated with webpack.
+
+    Static files that are generated with webpack will have a hash (based on file contents) in its filename.
+    A lookup needs to happen so we can
+    """
+
+    manifest_obj = get_manifest_obj()
+
+    path = kwargs.get("path", "")
+
+    is_from_webpack_manifest = manifest_obj is not None and path in manifest_obj
+
+    # This.... should not happen
+    if not is_from_webpack_manifest:
+        return static_media(request, **kwargs)
+
+    kwargs["path"] = f"dist/{manifest_obj[path]}"
+    response = static_media(request, **kwargs)
+
+    if settings.DEBUG:
+        return response
+
+    response["Cache-Control"] = FOREVER_CACHE
+    return response
+
+
 def static_media(request, **kwargs):
     """
     Serve static files below a given point in the directory structure.
     """
     module = kwargs.get("module")
     path = kwargs.get("path", "")
-    version = kwargs.get("version")
 
     if module:
         path = f"{module}/{path}"
@@ -77,11 +106,7 @@ def static_media(request, **kwargs):
     if path.endswith((".js", ".ttf", ".ttc", ".otf", ".eot", ".woff", ".woff2")):
         response["Access-Control-Allow-Origin"] = "*"
 
-    # If we have a version and not DEBUG, we can cache it FOREVER
-    if version is not None and not settings.DEBUG:
-        response["Cache-Control"] = FOREVER_CACHE
-    else:
-        # Otherwise, we explicitly don't want to cache at all
-        response["Cache-Control"] = NEVER_CACHE
+    # These assets should never be cached because they do not have a versioned filename
+    response["Cache-Control"] = NEVER_CACHE
 
     return response
