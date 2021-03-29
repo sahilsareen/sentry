@@ -132,7 +132,7 @@ class BaseTestCase(Fixtures, Exam):
             finally:
                 # Instead of unlinking, preserve an empty manifest file so that other tests that
                 # may or may not load static assets, do not fail
-                json.dump(manifest_data, {})
+                json.dump({}, manifest_fp)
 
                 # Remove any files created from the test manifest
                 for filepath in files:
