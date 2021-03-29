@@ -15,10 +15,13 @@ import {QuickTraceQueryChildrenProps} from 'app/utils/performance/quickTrace/typ
 import {isTransaction} from 'app/utils/performance/quickTrace/utils';
 import Projects from 'app/utils/projects';
 
-import QuickTrace from './quickTrace';
+import QuickTraceMeta from './quickTraceMeta';
 import {MetaData} from './styles';
 
-type Props = {
+type Props = Pick<
+  React.ComponentProps<typeof QuickTraceMeta>,
+  'errorDest' | 'transactionDest'
+> & {
   event: Event;
   organization: OrganizationSummary;
   projectId: string;
@@ -26,7 +29,15 @@ type Props = {
   quickTrace: QuickTraceQueryChildrenProps;
 };
 
-function EventMetas({event, organization, projectId, location, quickTrace}: Props) {
+function EventMetas({
+  event,
+  organization,
+  projectId,
+  location,
+  quickTrace,
+  errorDest,
+  transactionDest,
+}: Props) {
   const type = isTransaction(event) ? 'transaction' : 'event';
 
   const projectBadge = (
@@ -82,11 +93,13 @@ function EventMetas({event, organization, projectId, location, quickTrace}: Prop
         />
       )}
       <QuickTraceContainer>
-        <QuickTrace
+        <QuickTraceMeta
           event={event}
           organization={organization}
           location={location}
           quickTrace={quickTrace}
+          errorDest={errorDest}
+          transactionDest={transactionDest}
         />
       </QuickTraceContainer>
     </EventDetailHeader>
@@ -101,19 +114,22 @@ const EventDetailHeader = styled('div')<{type?: 'transaction' | 'event'}>`
   margin-bottom: ${space(2)};
 
   @media (min-width: ${p => p.theme.breakpoints[1]}) {
+    margin-bottom: 0;
+  }
+
+  @media (min-width: ${p => p.theme.breakpoints[2]}) {
     ${p =>
       p.type === 'transaction'
-        ? 'grid-template-columns: minmax(190px, 1fr) minmax(190px, 1fr) minmax(190px, 1fr) 6fr;'
-        : 'grid-template-columns: minmax(190px, 1fr) minmax(190px, 1fr) 6fr;'};
+        ? 'grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) minmax(160px, 1fr) 6fr;'
+        : 'grid-template-columns: minmax(160px, 1fr) minmax(200px, 1fr) 6fr;'};
     grid-row-gap: 0;
-    margin-bottom: 0;
   }
 `;
 
 const QuickTraceContainer = styled('div')`
   grid-column: 1/4;
 
-  @media (min-width: ${p => p.theme.breakpoints[1]}) {
+  @media (min-width: ${p => p.theme.breakpoints[2]}) {
     justify-self: flex-end;
     min-width: 325px;
     grid-column: unset;

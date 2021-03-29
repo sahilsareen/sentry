@@ -17,7 +17,6 @@ import overflowEllipsis from 'app/styles/overflowEllipsis';
 import space from 'app/styles/space';
 import {Organization, Release, ReleaseProject} from 'app/types';
 import {defined} from 'app/utils';
-import {decodeScalar} from 'app/utils/queryString';
 
 import {getReleaseNewIssuesUrl, getReleaseUnhandledIssuesUrl} from '../../utils';
 import {ReleaseHealthRequestRenderProps} from '../../utils/releaseHealthRequest';
@@ -95,7 +94,7 @@ const Content = ({
             </CollapseButtonWrapper>
           )}
         >
-          {projects.map(project => {
+          {projects.map((project, index) => {
             const {id, slug, newGroups} = project;
 
             const crashCount = getHealthData.getCrashCount(
@@ -120,11 +119,13 @@ const Content = ({
             const timeSeries = getHealthData.getTimeSeries(
               releaseVersion,
               id,
-              activeDisplay,
-              decodeScalar(location.query.healthStatsPeriod)
+              activeDisplay
             );
-
             const adoption = getHealthData.getAdoption(releaseVersion, id, activeDisplay);
+            // we currently don't support sub-hour session intervals, we rather hide the count histogram than to show only two bars
+            const hasCountHistogram =
+              timeSeries?.[0].data.length > 7 &&
+              timeSeries[0].data.some(item => item.value > 0);
 
             return (
               <ProjectRow key={`${releaseVersion}-${slug}-health`}>
@@ -164,8 +165,7 @@ const Content = ({
                   <CountColumn>
                     {showPlaceholders ? (
                       <StyledPlaceholder />
-                    ) : // we currently don't support sub-hour session intervals, we rather hide the count histogram than to show only two bars
-                    timeSeries && timeSeries[0].data.length > 7 ? (
+                    ) : hasCountHistogram ? (
                       <ChartWrapper>
                         <HealthStatsChart
                           data={timeSeries}
@@ -213,12 +213,17 @@ const Content = ({
                   </NewIssuesColumn>
 
                   <ViewColumn>
-                    <ProjectLink
-                      orgSlug={organization.slug}
-                      project={project}
-                      releaseVersion={releaseVersion}
-                      location={location}
-                    />
+                    <GuideAnchor
+                      disabled={!isTopRelease || index !== 0}
+                      target="view_release"
+                    >
+                      <ProjectLink
+                        orgSlug={organization.slug}
+                        project={project}
+                        releaseVersion={releaseVersion}
+                        location={location}
+                      />
+                    </GuideAnchor>
                   </ViewColumn>
                 </Layout>
               </ProjectRow>
