@@ -121,6 +121,9 @@ class BaseTestCase(Fixtures, Exam):
         files = []
         for file_path in manifest_data.values():
             full_path = f"{dist_path}/{file_path}"
+            # make directories in case they don't exist
+            # (e.g. dist path should exist, but subdirs won't)
+            os.makedirs(os.path.dirname(full_path), exist_ok=True)
             open(full_path, "a").close()
             files.append(full_path)
 
