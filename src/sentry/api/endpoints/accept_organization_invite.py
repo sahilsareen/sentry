@@ -13,6 +13,7 @@ class AcceptOrganizationInvite(Endpoint):
     # Disable authentication and permission requirements.
     permission_classes = []
 
+    
     def respond_invalid(self, request):
         return Response(status=status.HTTP_400_BAD_REQUEST, data={"details": "Invalid invite code"})
 
