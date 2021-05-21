@@ -9,6 +9,7 @@ from sentry.api.invite_helper import ApiInviteHelper, add_invite_cookie, remove_
 
 
 class AcceptOrganizationInvite(Endpoint):
+    
     # Disable authentication and permission requirements.
     permission_classes = []
 
